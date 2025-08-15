@@ -1,0 +1,45 @@
+{
+  "column_order": [
+    "type",
+    "DEFAULT",
+    "amount",
+    "oldbalanceOrg",
+    "newbalanceOrig",
+    "oldbalanceDest",
+    "newbalanceDest",
+    "HOUR"
+  ],
+  "categorical_columns": [
+    "type",
+    "DEFAULT"
+  ],
+  "numerical_columns": [
+    "amount",
+    "oldbalanceOrg",
+    "newbalanceOrig",
+    "oldbalanceDest",
+    "newbalanceDest",
+    "HOUR"
+  ],
+  "token_maps": {
+    "type": {
+      "TRANSFER": "T0",
+      "CASH_IN": "T1",
+      "PAYMENT": "T2",
+      "CASH_OUT": "T3",
+      "DEBIT": "T4",
+      "__UNK__": "T5"
+    },
+    "DEFAULT": {
+      "0": "T7",
+      "1": "T8",
+      "__UNK__": "T9"
+    }
+  },
+  "numeric_encoding": {
+    "base": 16,
+    "scale": 100,
+    "num_digits": 10,
+    "tokens_per_number": 11
+  }
+}

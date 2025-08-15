@@ -1,0 +1,137 @@
+{
+  "column_order": [
+    "CODE_GENDER",
+    "FLAG_OWN_CAR",
+    "FLAG_OWN_REALTY",
+    "NAME_INCOME_TYPE",
+    "NAME_EDUCATION_TYPE",
+    "NAME_FAMILY_STATUS",
+    "NAME_HOUSING_TYPE",
+    "OCCUPATION_TYPE",
+    "DEFAULT",
+    "TARGET",
+    "CNT_CHILDREN",
+    "AMT_INCOME_TOTAL",
+    "AMT_CREDIT",
+    "AMT_ANNUITY",
+    "DAYS_BIRTH",
+    "DAYS_EMPLOYED",
+    "OWN_CAR_AGE",
+    "REGION_RATING_CLIENT",
+    "REGION_RATING_CLIENT_W_CITY",
+    "EXT_SOURCE_1",
+    "EXT_SOURCE_2",
+    "EXT_SOURCE_3"
+  ],
+  "categorical_columns": [
+    "CODE_GENDER",
+    "FLAG_OWN_CAR",
+    "FLAG_OWN_REALTY",
+    "NAME_INCOME_TYPE",
+    "NAME_EDUCATION_TYPE",
+    "NAME_FAMILY_STATUS",
+    "NAME_HOUSING_TYPE",
+    "OCCUPATION_TYPE",
+    "DEFAULT"
+  ],
+  "numerical_columns": [
+    "TARGET",
+    "CNT_CHILDREN",
+    "AMT_INCOME_TOTAL",
+    "AMT_CREDIT",
+    "AMT_ANNUITY",
+    "DAYS_BIRTH",
+    "DAYS_EMPLOYED",
+    "OWN_CAR_AGE",
+    "REGION_RATING_CLIENT",
+    "REGION_RATING_CLIENT_W_CITY",
+    "EXT_SOURCE_1",
+    "EXT_SOURCE_2",
+    "EXT_SOURCE_3"
+  ],
+  "token_maps": {
+    "CODE_GENDER": {
+      "F": "T0",
+      "M": "T1",
+      "__UNK__": "T2"
+    },
+    "FLAG_OWN_CAR": {
+      "N": "T4",
+      "Y": "T5",
+      "__UNK__": "T6"
+    },
+    "FLAG_OWN_REALTY": {
+      "Y": "T8",
+      "N": "T9",
+      "__UNK__": "T10"
+    },
+    "NAME_INCOME_TYPE": {
+      "Pensioner": "T12",
+      "Working": "T13",
+      "State servant": "T14",
+      "Commercial associate": "T15",
+      "Unemployed": "T16",
+      "Businessman": "T17",
+      "Maternity leave": "T18",
+      "Student": "T19",
+      "__UNK__": "T20"
+    },
+    "NAME_EDUCATION_TYPE": {
+      "Secondary / secondary special": "T22",
+      "Higher education": "T23",
+      "Lower secondary": "T24",
+      "Incomplete higher": "T25",
+      "Academic degree": "T26",
+      "__UNK__": "T27"
+    },
+    "NAME_FAMILY_STATUS": {
+      "Civil marriage": "T29",
+      "Married": "T30",
+      "Single / not married": "T31",
+      "Separated": "T32",
+      "Widow": "T33",
+      "__UNK__": "T34"
+    },
+    "NAME_HOUSING_TYPE": {
+      "House / apartment": "T36",
+      "Municipal apartment": "T37",
+      "Rented apartment": "T38",
+      "With parents": "T39",
+      "Office apartment": "T40",
+      "Co-op apartment": "T41",
+      "__UNK__": "T42"
+    },
+    "OCCUPATION_TYPE": {
+      "Laborers": "T44",
+      "Security staff": "T45",
+      "Sales staff": "T46",
+      "Core staff": "T47",
+      "Drivers": "T48",
+      "Accountants": "T49",
+      "High skill tech staff": "T50",
+      "Managers": "T51",
+      "Medicine staff": "T52",
+      "Private service staff": "T53",
+      "Secretaries": "T54",
+      "Cleaning staff": "T55",
+      "Cooking staff": "T56",
+      "Waiters/barmen staff": "T57",
+      "Low-skill Laborers": "T58",
+      "IT staff": "T59",
+      "Realty agents": "T60",
+      "HR staff": "T61",
+      "__UNK__": "T62"
+    },
+    "DEFAULT": {
+      "0": "T64",
+      "1": "T65",
+      "__UNK__": "T66"
+    }
+  },
+  "numeric_encoding": {
+    "base": 16,
+    "scale": 100,
+    "num_digits": 10,
+    "tokens_per_number": 11
+  }
+}
