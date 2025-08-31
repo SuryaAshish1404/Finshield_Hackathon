@@ -1,0 +1,9 @@
+{
+  "score_scale": {
+    "min": 300,
+    "max": 850
+  },
+  "mapping": "score = 300 + round(P(no default) * 550)",
+  "target": "DEFAULT",
+  "dataset_name": "home_credit"
+}

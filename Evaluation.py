@@ -1,91 +1,108 @@
-# Evaluation.py — schema-aware fidelity checks & simple detectability test
-# Reads:  real=data/processed/train.parquet (or valid.parquet), synthetic_output.csv
-# Writes: reports/plots/*.png and reports/synth_eval.json
-
-import argparse, json, os
-from pathlib import Path
-
-import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+import os
+import math
+import json
 
-from sklearn.compose import ColumnTransformer
-from sklearn.preprocessing import OneHotEncoder, StandardScaler
-from sklearn.linear_model import LogisticRegression
-from sklearn.pipeline import Pipeline
-from sklearn.metrics import roc_auc_score
-from scipy.stats import ks_2samp
+# ==== CONFIG ====
+dataset = "home_credit"   # or "paysim"
+base_dir = f"data/processed/{dataset}"
 
-def numeric_ks(real, synth, cols):
-    ks = {}
-    for c in cols:
-        r = pd.to_numeric(real[c], errors="coerce").dropna()
-        s = pd.to_numeric(synth[c], errors="coerce").dropna()
-        if len(r) > 10 and len(s) > 10:
-            ks[c] = float(ks_2samp(r, s).statistic)
-    return ks
+real_path = f"{base_dir}/train.csv"
+synthetic_path = f"{base_dir}/synthetic_output.csv"
+schema_path = f"{base_dir}/schema.json"
+plots_dir = f"plots/{dataset}"
 
-def plot_distributions(real, synth, cats, nums, outdir):
-    Path(outdir).mkdir(parents=True, exist_ok=True)
-    for c in nums:
-        plt.figure(figsize=(5,3.2))
-        sns.kdeplot(pd.to_numeric(real[c], errors="coerce").dropna(), label="Real", fill=True)
-        sns.kdeplot(pd.to_numeric(synth[c], errors="coerce").dropna(), label="Synthetic", fill=True, linestyle="--")
-        plt.title(f"{c} (numeric)"); plt.tight_layout()
-        plt.legend(); plt.savefig(f"{outdir}/{c}_num.png"); plt.close()
-    for c in cats:
-        rc = real[c].astype(str).value_counts(normalize=True)
-        sc = synth[c].astype(str).value_counts(normalize=True)
-        df = pd.DataFrame({"Real": rc, "Synthetic": sc}).fillna(0)
-        ax = df.plot(kind="bar", figsize=(6,3.2))
-        ax.set_title(f"{c} (categorical)"); plt.tight_layout()
-        plt.savefig(f"{outdir}/{c}_cat.png"); plt.close()
+# ==== LOAD DATA ====
+real_df = pd.read_csv(real_path)
+synthetic_df = pd.read_csv(synthetic_path)
 
-def detectability_auc(real, synth, cats, nums):
-    realX = real[cats+nums].copy(); synthX = synth[cats+nums].copy()
-    realX["__label__"] = 1; synthX["__label__"] = 0
-    df = pd.concat([realX, synthX], axis=0, ignore_index=True).dropna()
-    y = df["__label__"].values; X = df.drop(columns=["__label__"])
-    pre = ColumnTransformer([("cat", OneHotEncoder(handle_unknown="ignore"), cats),
-                             ("num", StandardScaler(), nums)], remainder="drop")
-    clf = Pipeline([("pre", pre), ("clf", LogisticRegression(max_iter=500))])
-    clf.fit(X, y)
-    p = clf.predict_proba(X)[:,1]
-    return float(roc_auc_score(y, p))
+# Load schema for col types
+with open(schema_path, "r") as f:
+    schema = json.load(f)
+categorical_cols = schema["categoricals"]
+numerical_cols = schema["numericals"]
 
-def main(args):
-    schema = json.loads(Path(args.schema).read_text())
-    cats, nums = schema["categoricals"], schema["numericals"]
+# Create plots folder
+os.makedirs(plots_dir, exist_ok=True)
 
-    real = pd.read_parquet(args.real)
-    synth = pd.read_csv(args.synthetic) if args.synthetic.endswith(".csv") else pd.read_parquet(args.synthetic)
+# ==== PLOTS ====
+def plot_numeric_distributions(real_df, synthetic_df, columns, folder=plots_dir):
+    for col in columns:
+        if col not in real_df or col not in synthetic_df:
+            continue
+        plt.figure(figsize=(6, 4))
+        sns.kdeplot(real_df[col].dropna(), label="Real", fill=True)
+        sns.kdeplot(synthetic_df[col].dropna(), label="Synthetic", fill=True, linestyle="--")
+        plt.title(f"Distribution of {col}")
+        plt.xlabel(col)
+        plt.ylabel("Density")
+        plt.legend()
+        plt.tight_layout()
+        plt.savefig(f"{folder}/{col}_distribution.png")
+        plt.close()
 
-    # Align columns and types
-    for c in cats+nums:
-        if c not in synth.columns:
-            synth[c] = np.nan
-    synth = synth[cats+nums]
+def plot_categorical_distributions(real_df, synthetic_df, columns, folder=plots_dir):
+    for col in columns:
+        if col not in real_df or col not in synthetic_df:
+            continue
+        real_counts = real_df[col].value_counts(normalize=True)
+        synthetic_counts = synthetic_df[col].value_counts(normalize=True)
+        
+        combined = pd.DataFrame({'Real': real_counts, 'Synthetic': synthetic_counts}).fillna(0)
+        ax = combined.plot(kind='bar', stacked=False, figsize=(8, 4))
+        ax.set_title(f"Distribution of {col}")
+        ax.set_xlabel(col)
+        ax.set_ylabel("Proportion")
+        plt.xticks(rotation=45)
+        plt.tight_layout()
+        plt.savefig(f"{folder}/{col}_categorical_distribution.png")
+        plt.close()
 
-    ks = numeric_ks(real, synth, nums)
-    plot_distributions(real, synth, cats, nums, args.plots_dir)
-    auc = detectability_auc(real, synth, cats, nums)
+def compare_distributions_grid(real_df, synthetic_df, columns, ncols=3):
+    nrows = math.ceil(len(columns) / ncols)
+    fig, axs = plt.subplots(nrows=nrows, ncols=ncols, figsize=(ncols*5, nrows*4))
 
-    out = {
-        "numeric_KS_by_column": ks,
-        "mean_numeric_KS": float(np.mean(list(ks.values()))) if ks else None,
-        "detectability_auc": auc  # closer to 0.5 is better (hard to tell real vs synthetic)
-    }
-    Path(args.out_json).parent.mkdir(parents=True, exist_ok=True)
-    Path(args.out_json).write_text(json.dumps(out, indent=2))
-    print(f"Wrote: {args.out_json} and plots in {args.plots_dir}")
+    for i, col in enumerate(columns):
+        if col not in real_df or col not in synthetic_df:
+            continue
+        r, c = divmod(i, ncols)
+        ax = axs[r, c] if nrows > 1 else axs[c]
+        sns.kdeplot(real_df[col].dropna(), label="Real", fill=True, ax=ax)
+        sns.kdeplot(synthetic_df[col].dropna(), label="Synthetic", fill=True, linestyle="--", ax=ax)
+        ax.set_title(f"{col}")
+        ax.legend()
 
-if __name__ == "__main__":
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--real", default="data/processed/train.parquet")
-    ap.add_argument("--synthetic", default="data/processed/synthetic_output.csv")
-    ap.add_argument("--schema", default="data/processed/schema.json")
-    ap.add_argument("--plots_dir", default="reports/plots")
-    ap.add_argument("--out_json", default="reports/synth_eval.json")
-    args = ap.parse_args()
-    main(args)
+    for j in range(i+1, nrows*ncols):
+        r, c = divmod(j, ncols)
+        axs[r, c].axis("off") if nrows > 1 else axs[c].axis("off")
+
+    plt.tight_layout()
+    plt.show()
+
+# ==== SUMMARY STATS ====
+def calculate_statistics(df, columns):
+    stats = {}
+    for col in columns:
+        if col not in df:
+            continue
+        if pd.api.types.is_numeric_dtype(df[col]):
+            stats[col] = {
+                'mean': df[col].mean(),
+                'std': df[col].std(),
+                'min': df[col].min(),
+                'max': df[col].max()
+            }
+        else:
+            stats[col] = df[col].value_counts(normalize=True).to_dict()
+    return stats
+
+real_stats = calculate_statistics(real_df, real_df.columns)
+synthetic_stats = calculate_statistics(synthetic_df, synthetic_df.columns)
+
+# ==== RUN ====
+plot_numeric_distributions(real_df, synthetic_df, numerical_cols)
+plot_categorical_distributions(real_df, synthetic_df, categorical_cols)
+# Example showcase grid (choose a few numerical cols to compare together)
+compare_distributions_grid(real_df, synthetic_df, numerical_cols[:6])

@@ -1,0 +1,56 @@
+{
+  "real": {
+    "DEFAULT": {
+      "0": 0.919475,
+      "1": 0.080525
+    },
+    "TARGET": {
+      "0": 0.919475,
+      "1": 0.080525
+    },
+    "CODE_GENDER": {
+      "F": 0.65665,
+      "M": 0.34335
+    },
+    "FLAG_OWN_CAR": {
+      "N": 0.65855,
+      "Y": 0.34145
+    },
+    "FLAG_OWN_REALTY": {
+      "Y": 0.6954,
+      "N": 0.3046
+    },
+    "NAME_INCOME_TYPE": {
+      "Working": 0.518075,
+      "Commercial associate": 0.2308,
+      "Pensioner": 0.1796,
+      "State servant": 0.071275,
+      "Student": 0.0001,
+      "Unemployed": 0.0001,
+      "Businessman": 5e-05
+    },
+    "NAME_EDUCATION_TYPE": {
+      "Secondary / secondary special": 0.71045,
+      "Higher education": 0.24455,
+      "Incomplete higher": 0.032375,
+      "Lower secondary": 0.012325,
+      "Academic degree": 0.0003
+    },
+    "NAME_FAMILY_STATUS": {
+      "Married": 0.64375,
+      "Single / not married": 0.145925,
+      "Civil marriage": 0.095525,
+      "Separated": 0.063225,
+      "Widow": 0.05155,
+      "Unknown": 2.5e-05
+    },
+    "NAME_HOUSING_TYPE": {
+      "House / apartment": 0.8894,
+      "With parents": 0.04715,
+      "Municipal apartment": 0.036575,
+      "Rented apartment": 0.014825,
+      "Office apartment": 0.00815,
+      "Co-op apartment": 0.0039
+    },
+    "OCCUPATION_TYPE": {
+      
