@@ -3,8 +3,7 @@ data/raw/
 data/processed/
 
 # Ignore model weights
-*.pt
-*.pkl
+
 
 # Python cache
 __pycache__/
